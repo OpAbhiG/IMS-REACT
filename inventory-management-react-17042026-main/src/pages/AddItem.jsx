@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 
+
+
 export default function AddItem() {
 
 const today = new Date().toISOString().split('T')[0];
@@ -72,8 +74,9 @@ const today = new Date().toISOString().split('T')[0];
       formData.append("file", form.file);
     }
 
+    const API_URL = import.meta.env.VITE_API_URL;
     try {
-      const res = await fetch("http://localhost:5000/api/assets", {
+      const res = await fetch(`${API_URL}/api/assets`, {
         method: "POST",
         body: formData, // ❗ no headers
       });
