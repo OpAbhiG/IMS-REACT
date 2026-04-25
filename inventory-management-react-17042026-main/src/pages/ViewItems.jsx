@@ -87,10 +87,9 @@ export default function ViewItems() {
     );
   });
 
-  filteredItems.sort((a, b) => {
-  return (a.name || '').localeCompare(b.name || '');
-  
-});
+//   filteredItems.sort((a, b) => {
+//   return new Date(b.registeredDate) - new Date(a.registeredDate);
+// });
 
 
 registeredDate: new Date().toISOString()
@@ -291,7 +290,7 @@ registeredDate: new Date().toISOString()
                   <th>Price</th>
                   <th>Invoice</th>
                   <th>Purchase</th>
-                  <th>Registered On</th>
+                  <th>Registered</th>
                   <th>Notes</th>
                   {/* <th>File</th> */}
                   {/* <th>Location</th>
@@ -321,7 +320,6 @@ registeredDate: new Date().toISOString()
                       <td>{item.invoice || '-'}</td>
                       <td>{item.buyDate || '-'}</td>
                       <td>{item.registeredDate || '-'}</td>
-                      
                       <td>{item.extraDetails || '-'}</td>
 
                       {/* File */}
