@@ -26,7 +26,7 @@ export default function ViewItems() {
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    fetch(`${API_URL}/assets`)
+    fetch(`${API_URL}/api/assets`)
       .then(res => res.json())
       .then(data => {
         console.log("API Data:", data);
