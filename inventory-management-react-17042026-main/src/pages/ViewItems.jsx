@@ -21,47 +21,47 @@ export default function ViewItems() {
 
   // Search & Sort
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOption, setSortOption] = useState('name-asc'); // default: Item Name A-Z
+  const [sortOption, setSortOption] = useState('name-asc'); // default: Item Name A-Z, 
 
- useEffect(() => {
-  fetch("http://localhost:5000/api/assets")
-    .then(res => res.json())
-    .then(data => {
-      console.log("API Data:", data);
+  useEffect(() => {
+    fetch("http://localhost:5000/api/assets")
+      .then(res => res.json())
+      .then(data => {
+        console.log("API Data:", data);
 
-      // Convert array → your existing grouped format
-      const grouped = {};
+        // Convert array → your existing grouped format
+        const grouped = {};
 
-      data.forEach(item => {
-        const category = item.itemName || "Others"; // 👈 matches your backend
+        data.forEach(item => {
+          const category = item.itemName || "Others"; // 👈 matches your backend
 
-        if (!grouped[category]) {
-          grouped[category] = [];
-        }
+          if (!grouped[category]) {
+            grouped[category] = [];
+          }
 
-        grouped[category].push({
-          id: item.id,
-          name: item.itemName,
-          model: item.model,
-          serialNumber: item.serialNumber,
-          user: item.username,
-          vendor: item.vendor,
-          price: item.price,
-          invoice: item.invoice_no,
-          buyDate: item.buyDate,
-          registeredDate: item.registered_on,
-          extraDetails: item.extraDetails,
-          file: item.file,
-          location: item.location,
-          updatedDate: item.updatedAt,
-          relocateHistory: item.relocateHistory || []
+          grouped[category].push({
+            id: item.id,
+            name: item.itemName,
+            model: item.model,
+            serialNumber: item.serialNumber,
+            user: item.username,
+            vendor: item.vendor,
+            price: item.price,
+            invoice: item.invoice_no,
+            buyDate: item.buyDate,
+            registeredDate: item.registered_on,
+            extraDetails: item.extraDetails,
+            file: item.file,
+            location: item.location,
+            updatedDate: item.updatedAt,
+            relocateHistory: item.relocateHistory || []
+          });
         });
-      });
 
-      setItems(grouped);
-    })
-    .catch(err => console.log("API Error:", err));
-}, []);
+        setItems(grouped);
+      })
+      .catch(err => console.log("API Error:", err));
+  }, []);
 
   const saveData = (data) => {
     localStorage.setItem('items', JSON.stringify(data));
@@ -87,6 +87,14 @@ export default function ViewItems() {
     );
   });
 
+  filteredItems.sort((a, b) => {
+  return (a.name || '').localeCompare(b.name || '');
+  
+});
+
+
+registeredDate: new Date().toISOString()
+
   // Sort based on dropdown selection
   filteredItems.sort((a, b) => {
     switch (sortOption) {
@@ -98,25 +106,33 @@ export default function ViewItems() {
         return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0);
       case 'price-low':
         return (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0);
-      case 'purchase-new':
-        return new Date(b.buyDate) - new Date(a.buyDate);
-      case 'purchase-old':
-        return new Date(a.buyDate) - new Date(b.buyDate);
-      case 'updated-new':
-        return new Date(b.updatedDate) - new Date(a.updatedDate);
-      case 'updated-old':
-        return new Date(a.updatedDate) - new Date(b.updatedDate);
+      // case 'purchase-new':
+      //   return new Date(b.buyDate) - new Date(a.buyDate);
+      // case 'purchase-old':
+      //   return new Date(a.buyDate) - new Date(b.buyDate);
+      // case 'updated-new':
+      //   return new Date(b.updatedDate) - new Date(a.updatedDate);
+      // case 'updated-old':
+      //   return new Date(a.updatedDate) - new Date(b.updatedDate);
       default:
         return 0;
     }
   });
 
   // DELETE
-  const handleDelete = (cat, index) => {
+  const handleDelete = async (item) => {
     if (!window.confirm("Delete item?")) return;
-    const updated = { ...items };
-    updated[cat].splice(index, 1);
-    saveData(updated);
+
+    try {
+      await fetch(`http://localhost:5000/api/assets/${item.id}`, {
+        method: "DELETE"
+      });
+
+      // Refresh data from backend
+      window.location.reload();
+    } catch (err) {
+      console.error("Delete Error:", err);
+    }
   };
 
   // EDIT
@@ -126,17 +142,69 @@ export default function ViewItems() {
     setEditMode(true);
   };
 
-  const handleEditSave = () => {
-    const updated = { ...items };
-    updated[selectedItem.category][selectedItem.index] = {
-      ...form,
-      updatedDate: new Date().toISOString()
-    };
-    saveData(updated);
-    setEditMode(false);
+  const handleEditSave = async () => {
+    try {
+      await fetch(`http://localhost:5000/api/assets/${selectedItem.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          itemName: form.name,        // ✅ FIXED
+          model: form.model,
+          serialNumber: form.serialNumber,
+          username: form.user,
+          vendor: form.vendor,
+          price: form.price,
+          invoice_no: form.invoice,
+          buyDate: form.buyDate,
+          registered_on: form.registeredDate,
+          extraDetails: form.extraDetails,
+          updatedAt: new Date().toISOString()
+        })
+      });
+
+      setEditMode(false);
+      window.location.reload();
+
+    } catch (err) {
+      console.error("Update Error:", err);
+    }
+  };
+  // RELOCATE
+  const handleRelocate = async () => {
+    try {
+      const record = {
+        from: relocateForm.from,
+        to: relocateForm.to,
+        assignedTo: relocateForm.assignedTo,
+        reason: relocateForm.reason,
+        by: relocateForm.by,
+        date: new Date().toISOString()
+      };
+
+      await fetch(`http://localhost:5000/api/assets/${selectedItem.id}/relocate`, {
+        method: "POST", // depends on backend
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          fromLocation: relocateForm.from,
+          toLocation: relocateForm.to,
+          assignedTo: relocateForm.assignedTo,
+          reason: relocateForm.reason,
+          relocatedBy: relocateForm.by
+        })
+      });
+
+      setRelocateMode(false);
+      window.location.reload();
+
+    } catch (err) {
+      console.error("Relocate Error:", err);
+    }
   };
 
-  // RELOCATE
   const openRelocate = (item) => {
     setSelectedItem(item);
     setRelocateForm({
@@ -148,26 +216,25 @@ export default function ViewItems() {
     });
     setRelocateMode(true);
   };
+  // const handleRelocate = () => {
+  //   const updated = { ...items };
+  //   const record = {
+  //     from: relocateForm.from,
+  //     to: relocateForm.to,
+  //     assignedTo: relocateForm.assignedTo,
+  //     reason: relocateForm.reason,
+  //     by: relocateForm.by,
+  //     date: new Date().toISOString()
+  //   };
 
-  const handleRelocate = () => {
-    const updated = { ...items };
-    const record = {
-      from: relocateForm.from,
-      to: relocateForm.to,
-      assignedTo: relocateForm.assignedTo,
-      reason: relocateForm.reason,
-      by: relocateForm.by,
-      date: new Date().toISOString()
-    };
+  //   const item = updated[selectedItem.category][selectedItem.index];
+  //   item.location = relocateForm.to;
+  //   item.relocateHistory = [...(item.relocateHistory || []), record];
+  //   item.updatedDate = new Date().toISOString();
 
-    const item = updated[selectedItem.category][selectedItem.index];
-    item.location = relocateForm.to;
-    item.relocateHistory = [...(item.relocateHistory || []), record];
-    item.updatedDate = new Date().toISOString();
-
-    saveData(updated);
-    setRelocateMode(false);
-  };
+  //   saveData(updated);
+  //   setRelocateMode(false);
+  // };
 
   return (
     <div className="container py-5">
@@ -193,19 +260,19 @@ export default function ViewItems() {
               />
             </div>
             <div className="col-md-5">
-              <select 
-                className="form-select" 
-                value={sortOption} 
+              <select
+                className="form-select"
+                value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
               >
                 <option value="name-asc">Item Name (A-Z)</option>
                 <option value="name-desc">Item Name (Z-A)</option>
                 <option value="price-high">Price (High to Low)</option>
                 <option value="price-low">Price (Low to High)</option>
-                <option value="purchase-new">Purchase Date (Newest)</option>
+                {/* <option value="purchase-new">Purchase Date (Newest)</option>
                 <option value="purchase-old">Purchase Date (Oldest)</option>
                 <option value="updated-new">Updated Date (Newest)</option>
-                <option value="updated-old">Updated Date (Oldest)</option>
+                <option value="updated-old">Updated Date (Oldest)</option> */}
               </select>
             </div>
           </div>
@@ -224,12 +291,12 @@ export default function ViewItems() {
                   <th>Price</th>
                   <th>Invoice</th>
                   <th>Purchase</th>
-                  <th>Registered</th>
+                  <th>Registered On</th>
                   <th>Notes</th>
-                  <th>File</th>
-                  <th>Location</th>
-                  <th>Updated</th>
-                  <th>Relocate Count</th>
+                  {/* <th>File</th> */}
+                  {/* <th>Location</th>
+                  <th>Updated</th> */}
+                  {/* <th>Relocate Count</th> */}
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -237,7 +304,7 @@ export default function ViewItems() {
               <tbody>
                 {filteredItems.length === 0 ? (
                   <tr>
-                    <td colSpan="16" className="text-center text-muted py-4">
+                    <td colSpan="12" className="text-center text-muted py-4">
                       No data available
                     </td>
                   </tr>
@@ -254,10 +321,11 @@ export default function ViewItems() {
                       <td>{item.invoice || '-'}</td>
                       <td>{item.buyDate || '-'}</td>
                       <td>{item.registeredDate || '-'}</td>
+                      
                       <td>{item.extraDetails || '-'}</td>
 
                       {/* File */}
-                      <td>
+                      {/* <td>
                         {item.file ? (
                           <button
                             className="btn btn-sm btn-outline-secondary"
@@ -266,11 +334,11 @@ export default function ViewItems() {
                             <i className="bi bi-file-earmark"></i> View
                           </button>
                         ) : '-'}
-                      </td>
+                      </td> */}
 
-                      <td>{item.location || '-'}</td>
-                      <td>{item.updatedDate?.split('T')[0]}</td>
-                      <td>{item.relocateHistory?.length || 0}</td>
+                      {/* <td>{item.location || '-'}</td> */}
+                      {/* <td>{item.updatedDate?.split('T')[0]}</td> */}
+                      {/* <td>{item.relocateHistory?.length || 0}</td> */}
 
                       <td>
                         <div className="d-flex gap-1">
@@ -278,7 +346,7 @@ export default function ViewItems() {
                             <i className="bi bi-pencil"></i>
                           </button>
 
-                          <button className="btn btn-sm btn-danger" onClick={() => handleDelete(item.category, item.index)}>
+                          <button className="btn btn-sm btn-danger" onClick={() => handleDelete(item)}>
                             <i className="bi bi-trash"></i>
                           </button>
 
@@ -286,10 +354,25 @@ export default function ViewItems() {
                             <i className="bi bi-arrow-left-right"></i>
                           </button>
 
-                          <button className="btn btn-sm btn-info" onClick={() => {
-                            setSelectedItem(item);
-                            setHistoryMode(true);
-                          }}>
+                          <button
+                            className="btn btn-sm btn-info"
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(`http://localhost:5000/api/assets/${item.id}/relocations`);
+                                const data = await res.json();
+
+                                setSelectedItem({
+                                  ...item,
+                                  relocateHistory: data
+                                });
+
+                                setHistoryMode(true);
+
+                              } catch (err) {
+                                console.error("History Fetch Error:", err);
+                              }
+                            }}
+                          >
                             <i className="bi bi-clock-history"></i>
                           </button>
                         </div>
@@ -312,9 +395,9 @@ export default function ViewItems() {
               <h5 className="mb-3">Edit Inventory Item</h5>
               <div className="row g-3">
                 {[
-                  "name","model","serialNumber","user",
-                  "vendor","price","buyDate","invoice",
-                  "registeredDate","extraDetails"
+                  "name", "model", "serialNumber", "user",
+                  "vendor", "price", "buyDate", "invoice",
+                  "registeredDate", "extraDetails"
                 ].map((key, i) => (
                   <div className="col-md-6" key={i}>
                     <label className="form-label text-capitalize">{key}</label>
@@ -345,27 +428,27 @@ export default function ViewItems() {
                 <div className="col-6">
                   <input className="form-control" placeholder="From Location"
                     value={relocateForm.from}
-                    onChange={(e)=>setRelocateForm({...relocateForm,from:e.target.value})}/>
+                    onChange={(e) => setRelocateForm({ ...relocateForm, from: e.target.value })} />
                 </div>
                 <div className="col-6">
                   <input className="form-control" placeholder="To Location"
-                    onChange={(e)=>setRelocateForm({...relocateForm,to:e.target.value})}/>
+                    onChange={(e) => setRelocateForm({ ...relocateForm, to: e.target.value })} />
                 </div>
                 <div className="col-6">
                   <input className="form-control" placeholder="Assigned To"
-                    onChange={(e)=>setRelocateForm({...relocateForm,assignedTo:e.target.value})}/>
+                    onChange={(e) => setRelocateForm({ ...relocateForm, assignedTo: e.target.value })} />
                 </div>
                 <div className="col-6">
                   <input className="form-control" placeholder="Relocated By"
-                    onChange={(e)=>setRelocateForm({...relocateForm,by:e.target.value})}/>
+                    onChange={(e) => setRelocateForm({ ...relocateForm, by: e.target.value })} />
                 </div>
                 <div className="col-12">
                   <input className="form-control" placeholder="Reason"
-                    onChange={(e)=>setRelocateForm({...relocateForm,reason:e.target.value})}/>
+                    onChange={(e) => setRelocateForm({ ...relocateForm, reason: e.target.value })} />
                 </div>
               </div>
               <div className="text-end mt-3">
-                <button className="btn btn-secondary me-2" onClick={()=>setRelocateMode(false)}>Cancel</button>
+                <button className="btn btn-secondary me-2" onClick={() => setRelocateMode(false)}>Cancel</button>
                 <button className="btn btn-warning" onClick={handleRelocate}>Save</button>
               </div>
             </div>
@@ -395,12 +478,12 @@ export default function ViewItems() {
                     {selectedItem?.relocateHistory?.length > 0 ? (
                       selectedItem.relocateHistory.map((h, i) => (
                         <tr key={i}>
-                          <td>{h.from}</td>
-                          <td>{h.to}</td>
-                          <td>{h.by}</td>
+                          <td>{h.fromLocation}</td>
+                          <td>{h.toLocation}</td>
+                          <td>{h.relocatedBy}</td>
                           <td>{h.assignedTo}</td>
                           <td>{h.reason}</td>
-                          <td>{h.date?.replace('T',' ').slice(0,16)}</td>
+                          <td>{h.relocatedAt?.replace('T', ' ').slice(0, 16)}</td>
                         </tr>
                       ))
                     ) : (
