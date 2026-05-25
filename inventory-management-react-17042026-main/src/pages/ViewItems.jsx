@@ -21,7 +21,7 @@ export default function ViewItems() {
 
   // Search & Sort
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOption, setSortOption] = useState('name-asc'); // default: Item Name A-Z, 
+  const [sortOption, setSortOption] = useState('name-asc'); // default: Item Name A-Z
 
   useEffect(() => {
     fetch("http://localhost:5000/api/assets")
@@ -86,13 +86,6 @@ export default function ViewItems() {
       (item.vendor || '').toLowerCase().includes(term)
     );
   });
-
-//   filteredItems.sort((a, b) => {
-//   return new Date(b.registeredDate) - new Date(a.registeredDate);
-// });
-
-
-registeredDate: new Date().toISOString()
 
   // Sort based on dropdown selection
   filteredItems.sort((a, b) => {
@@ -290,12 +283,12 @@ registeredDate: new Date().toISOString()
                   <th>Price</th>
                   <th>Invoice</th>
                   <th>Purchase</th>
-                  <th>Registered</th>
+                  <th>Registered On</th>
                   <th>Notes</th>
-                  {/* <th>File</th> */}
-                  {/* <th>Location</th>
-                  <th>Updated</th> */}
-                  {/* <th>Relocate Count</th> */}
+                  {/* <th>File</th>
+                  <th>Location</th>
+                  <th>Updated</th>
+                  <th>Relocate Count</th> */}
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -303,7 +296,7 @@ registeredDate: new Date().toISOString()
               <tbody>
                 {filteredItems.length === 0 ? (
                   <tr>
-                    <td colSpan="12" className="text-center text-muted py-4">
+                    <td colSpan="16" className="text-center text-muted py-4">
                       No data available
                     </td>
                   </tr>
@@ -332,11 +325,11 @@ registeredDate: new Date().toISOString()
                             <i className="bi bi-file-earmark"></i> View
                           </button>
                         ) : '-'}
-                      </td> */}
+                      </td>
 
-                      {/* <td>{item.location || '-'}</td> */}
-                      {/* <td>{item.updatedDate?.split('T')[0]}</td> */}
-                      {/* <td>{item.relocateHistory?.length || 0}</td> */}
+                      <td>{item.location || '-'}</td>
+                      <td>{item.updatedDate?.split('T')[0]}</td>
+                      <td>{item.relocateHistory?.length || 0}</td> */}
 
                       <td>
                         <div className="d-flex gap-1">

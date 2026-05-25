@@ -1,4 +1,6 @@
-import { useState } from 'react';
+// import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 
@@ -10,6 +12,15 @@ const today = new Date().toISOString().split('T')[0];
 
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+
+  const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
+const [newCategoryName, setNewCategoryName] = useState('');
+
+const [categories, setCategories] = useState([
+  "Monitor","CPU","Keyboard Wire","Keyboard Wireless",
+  "Mouse Wire","Mouse Wireless","UPS","Headphone",
+  "Printer","Scanner","Access Points" , "Network Switch", "SSD", "USB Storage", "Consumables", "Others"
+]);
 
   const [form, setForm] = useState({
     name: '',
@@ -25,16 +36,43 @@ const today = new Date().toISOString().split('T')[0];
     file: '',
   });
 
-  const categories = [
-    "Monitor","CPU","Keyboard Wire","Keyboard Wireless",
-    "Mouse Wire","Mouse Wireless","UPS","Headphone",
-    "Printer","Scanner"
-  ];
+  // const categories = [
+  //   "Monitor","CPU","Keyboard Wire","Keyboard Wireless",
+  //   "Mouse Wire","Mouse Wireless","UPS","Headphone",
+  //   "Printer","Scanner"
+  // ];
+  useEffect(() => {
+  const saved = localStorage.getItem('itemCategories');
+  if (saved) {
+    setCategories(JSON.parse(saved));
+  }
+}, []);
 
   const handleCategorySelect = (cat) => {
     setForm({ ...form, name: cat });
     setStep(2);
   };
+
+  const handleAddNewCategory = () => {
+  if (!newCategoryName.trim()) {
+    alert('Enter category name');
+    return;
+  }
+ 
+  if (categories.includes(newCategoryName)) {
+    alert('Category already exists');
+    return;
+  }
+ 
+  const updated = [...categories, newCategoryName.trim()];
+  setCategories(updated);
+  localStorage.setItem('itemCategories', JSON.stringify(updated));
+  
+  setForm({ ...form, name: newCategoryName.trim() });
+  setNewCategoryName('');
+  setShowNewCategoryForm(false);
+  setStep(2);
+};
 
   // ✅ FIXED FILE HANDLING
   const handleChange = (e) => {
@@ -108,24 +146,77 @@ const today = new Date().toISOString().split('T')[0];
             <div className="card-body p-4">
 
               {/* STEP 1 */}
-              {step === 1 && (
-                <>
-                  <h4 className="text-center mb-4">Select Item Category</h4>
-                  <div className="row g-3">
-                    {categories.map((cat, i) => (
-                      <div key={i} className="col-6 col-md-4">
-                        <button
-                          className="btn btn-outline-primary w-100 py-3"
-                          onClick={() => handleCategorySelect(cat)}
-                        >
-                          {cat}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-
+{step === 1 && (
+  <>
+    <h4 className="text-center mb-4">Select Item Category</h4>
+    <div className="row g-3">
+      {categories.map((cat, i) => (
+        <div key={i} className="col-6 col-md-4">
+          <button
+            type="button"
+            className="btn btn-outline-primary w-100 py-3"
+            onClick={() => handleCategorySelect(cat)}
+          >
+            {cat}
+          </button>
+        </div>
+      ))}
+    </div>
+ 
+    <div className="row g-3 mt-2">
+      <div className="col-6 col-md-4">
+        <button
+          type="button"
+          className="btn btn-success w-100 py-3"
+          onClick={() => setShowNewCategoryForm(!showNewCategoryForm)}
+        >
+          <i className="bi bi-plus-lg"></i> New Category
+        </button>
+      </div>
+    </div>
+ 
+    {showNewCategoryForm && (
+      <div className="card mt-4 border-success">
+        <div className="card-body">
+          <h6 className="mb-3">Create New Category</h6>
+          <div className="d-flex gap-2">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Enter category name..."
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') handleAddNewCategory();
+              }}
+              maxLength={50}
+            />
+            <button
+              type="button"
+              className="btn btn-success"
+              onClick={handleAddNewCategory}
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => {
+                setShowNewCategoryForm(false);
+                setNewCategoryName('');
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+          <small className="text-muted d-block mt-2">
+            {newCategoryName.length}/50 characters
+          </small>
+        </div>
+      </div>
+    )}
+  </>
+)}
               {/* STEP 2 */}
               {step === 2 && (
                 <form onSubmit={handleSubmit}>
