@@ -23,8 +23,10 @@ export default function ViewItems() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOption, setSortOption] = useState('name-asc'); // default: Item Name A-Z
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
-    fetch("http://localhost:5000/api/assets")
+    fetch(`${API_URL}/api/assets`)
       .then(res => res.json())
       .then(data => {
         console.log("API Data:", data);
@@ -116,7 +118,7 @@ export default function ViewItems() {
     if (!window.confirm("Delete item?")) return;
 
     try {
-      await fetch(`http://localhost:5000/api/assets/${item.id}`, {
+      await fetch(`${API_URL}/api/assets/${item.id}`, {
         method: "DELETE"
       });
 
@@ -136,7 +138,7 @@ export default function ViewItems() {
 
   const handleEditSave = async () => {
     try {
-      await fetch(`http://localhost:5000/api/assets/${selectedItem.id}`, {
+      await fetch(`${API_URL}/api/assets/${selectedItem.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"
@@ -175,7 +177,7 @@ export default function ViewItems() {
         date: new Date().toISOString()
       };
 
-      await fetch(`http://localhost:5000/api/assets/${selectedItem.id}/relocate`, {
+      await fetch(`${API_URL}/api/assets/${selectedItem.id}/relocate`, {
         method: "POST", // depends on backend
         headers: {
           "Content-Type": "application/json"
@@ -349,7 +351,7 @@ export default function ViewItems() {
                             className="btn btn-sm btn-info"
                             onClick={async () => {
                               try {
-                                const res = await fetch(`http://localhost:5000/api/assets/${item.id}/relocations`);
+                                const res = await fetch(`${API_URL}/api/assets/${item.id}/relocations`);
                                 const data = await res.json();
 
                                 setSelectedItem({
