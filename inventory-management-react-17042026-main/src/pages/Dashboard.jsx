@@ -1,6 +1,6 @@
 import PageHeader from "../components/PageHeader";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Doughnut, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -22,6 +22,11 @@ ChartJS.register(
 );
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+
+const handleItemClick = (itemName) => {
+  navigate(`/view-items?item=${encodeURIComponent(itemName)}`);
+};
   const [totalItems, setTotalItems] = useState(0);
   const [categoryData, setCategoryData] = useState([]);
 
@@ -182,11 +187,15 @@ export default function Dashboard() {
         {categoryData.length > 0 ? (
           categoryData.map((cat, i) => (
             <div key={i} className="col-md-4 col-sm-6">
-              <div className="card text-center p-4 h-100">
-                <h5 className="mb-2">{cat.name}</h5>
-                <h2 className="text-primary mb-0">{cat.value}</h2>
-              </div>
-            </div>
+  <div
+    className="card text-center p-4 h-100"
+    style={{ cursor: "pointer" }}
+    onClick={() => handleItemClick(cat.name)}
+  >
+    <h5 className="mb-2">{cat.name}</h5>
+    <h2 className="text-primary mb-0">{cat.value}</h2>
+  </div>
+</div>
           ))
         ) : (
           <div className="col-12 text-center text-muted py-5">

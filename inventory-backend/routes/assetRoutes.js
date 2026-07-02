@@ -26,6 +26,7 @@ router.get('/', controller.getAllAssets);
 router.get('/:id', controller.getAssetById);
 router.put('/:id', controller.updateAsset);
 router.delete('/:id', controller.deleteAsset);
+router.get('/category/:itemName', controller.getAssetsByCategory);
 
 // Asset relocation
 router.post('/:id/relocate', controller.relocateAsset);

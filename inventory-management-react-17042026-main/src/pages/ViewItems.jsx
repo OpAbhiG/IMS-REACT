@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
 
 export default function ViewItems() {
+const [searchParams] = useSearchParams();
 
+const selectedCategory = searchParams.get("item");
   const [items, setItems] = useState({});
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -78,16 +81,25 @@ export default function ViewItems() {
   });
 
   // Filter by search
-  let filteredItems = allItems.filter(item => {
-    const term = searchTerm.toLowerCase();
-    return (
-      (item.name || '').toLowerCase().includes(term) ||
-      (item.model || '').toLowerCase().includes(term) ||
-      (item.serialNumber || '').toLowerCase().includes(term) ||
-      (item.user || '').toLowerCase().includes(term) ||
-      (item.vendor || '').toLowerCase().includes(term)
-    );
-  });
+let filteredItems = allItems.filter(item => {
+
+  if (
+    selectedCategory &&
+    item.name !== selectedCategory
+  ) {
+    return false;
+  }
+
+  const term = searchTerm.toLowerCase();
+
+  return (
+    (item.name || '').toLowerCase().includes(term) ||
+    (item.model || '').toLowerCase().includes(term) ||
+    (item.serialNumber || '').toLowerCase().includes(term) ||
+    (item.user || '').toLowerCase().includes(term) ||
+    (item.vendor || '').toLowerCase().includes(term)
+  );
+});
 
   // Sort based on dropdown selection
   filteredItems.sort((a, b) => {
@@ -272,7 +284,15 @@ export default function ViewItems() {
           </div>
 
           {/* TABLE */}
+          {selectedCategory && (
+  <div className="alert alert-primary mb-3">
+    Showing Items for:
+    <strong> {selectedCategory}</strong>
+    {" "}({filteredItems.length} Items)
+  </div>
+)}
           <div style={{ overflow: "auto", maxHeight: "500px" }}>
+            
             <table className="table table-bordered table-hover text-nowrap">
               <thead className="table-light sticky-top">
                 <tr>

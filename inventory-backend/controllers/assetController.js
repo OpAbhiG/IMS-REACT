@@ -304,3 +304,22 @@ exports.getAssetCount = async (req, res) => {
     });
   }
 };
+exports.getAssetsByCategory = async (req, res) => {
+  try {
+    const itemName = req.params.itemName;
+
+    const assets = await Asset.findAll({
+      where: {
+        itemName: itemName
+      }
+    });
+
+    res.status(200).json(assets);
+
+  } catch (err) {
+    console.error("Error fetching category assets:", err);
+    res.status(500).json({
+      error: "Failed to fetch assets"
+    });
+  }
+};
