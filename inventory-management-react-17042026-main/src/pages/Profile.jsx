@@ -23,6 +23,9 @@ export default function Profile() {
     }
   };
 
+  const username = localStorage.getItem('username') || 'a@123';
+  const displayName = localStorage.getItem('displayName') || (username === 'a@123' ? 'Administrator' : username.charAt(0).toUpperCase() + username.slice(1));
+
   return (
     <div className="container py-5">
       <PageHeader
@@ -43,8 +46,8 @@ export default function Profile() {
                   <i className="bi bi-person-fill"></i>
                 </div>
                 <div>
-                  <h3 className="mb-1">Administrator</h3>
-                  <p className="text-muted mb-0">{localStorage.getItem('username') || 'a@123'}</p>
+                  <h3 className="mb-1 text-capitalize">{displayName}</h3>
+                  <p className="text-muted mb-0">{username}</p>
                 </div>
               </div>
 

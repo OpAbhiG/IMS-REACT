@@ -7,15 +7,15 @@ export default function Login() {
   const [error, setError] = useState('');
 
   const allowedUsers = [
-    { username: 'a@123', password: 'A@123' },
-    { username: 'nilesh', password: 'Hvd@123' },
-    { username: 'komal', password: 'Hvd@123' },
-    { username: 'abhishek', password: 'Hvd@123' },
-    { username: 'pramod', password: 'Hvd@123' },
-    { username: 'afhaan', password: 'Hvd@123' },
-    { username: 'kalpesh', password: 'Hvd@123' },
-    { username: 'user', password: 'Hvd@123' },
-    { username: 'user1', password: 'Hvd@123' },
+    { username: 'a@123', password: 'A@123', name: 'Administrator' },
+    { username: 'nilesh', password: 'Hvd@123', name: 'Nilesh' },
+    { username: 'komal', password: 'Hvd@123', name: 'Komal' },
+    { username: 'abhishek', password: 'Hvd@123', name: 'Abhishek' },
+    { username: 'pramod', password: 'Hvd@123', name: 'Pramod' },
+    { username: 'afhaan', password: 'Hvd@123', name: 'Afhaan' },
+    { username: 'kalpesh', password: 'Hvd@123', name: 'Kalpesh' },
+    { username: 'user', password: 'Hvd@123', name: 'User' },
+    { username: 'user1', password: 'Hvd@123', name: 'User 1' },
   ];
 
   const handleSubmit = (e) => {
@@ -28,7 +28,8 @@ export default function Login() {
 
     if (matchedUser && form.hospital) {
       localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('username', form.username.trim());
+      localStorage.setItem('username', matchedUser.username);
+      localStorage.setItem('displayName', matchedUser.name || matchedUser.username);
       localStorage.setItem('selectedHospital', form.hospital);
       navigate('/dashboard', { replace: true });
     } else {
