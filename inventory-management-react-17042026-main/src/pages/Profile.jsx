@@ -51,7 +51,7 @@ export default function Profile() {
                 </div>
               </div>
 
-              <div className="row g-4 mb-5">
+              {/* <div className="row g-4 mb-5">
                 <div className="col-md-6">
                   <div className="p-3 bg-light rounded-3 h-100">
                     <h6 className="text-muted mb-2">Hospital Branch</h6>
@@ -64,7 +64,7 @@ export default function Profile() {
                     <p className="fs-5 fw-semibold text-success mb-0">Full Access (Read/Write)</p>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
 
               <div className="text-center border-top pt-4">
