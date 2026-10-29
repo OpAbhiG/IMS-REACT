@@ -8,6 +8,7 @@ const [searchParams] = useSearchParams();
 const selectedCategory = searchParams.get("item");
   const [items, setItems] = useState({});
   const [selectedItem, setSelectedItem] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [editMode, setEditMode] = useState(false);
   const [relocateMode, setRelocateMode] = useState(false);
@@ -29,6 +30,7 @@ const selectedCategory = searchParams.get("item");
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
+    setLoading(true);
     fetch(`${API_URL}/api/assets`)
       .then(res => res.json())
       .then(data => {
@@ -64,8 +66,12 @@ const selectedCategory = searchParams.get("item");
         });
 
         setItems(grouped);
+        setLoading(false);
       })
-      .catch(err => console.log("API Error:", err));
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
   }, []);
 
   const saveData = (data) => {
@@ -316,7 +322,14 @@ let filteredItems = allItems.filter(item => {
               </thead>
 
               <tbody>
-                {filteredItems.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan="16" className="text-center text-muted py-5">
+                      <div className="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                      Loading inventory items...
+                    </td>
+                  </tr>
+                ) : filteredItems.length === 0 ? (
                   <tr>
                     <td colSpan="16" className="text-center text-muted py-4">
                       No data available

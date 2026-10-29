@@ -6,64 +6,6 @@ const Asset = AssetModel(sequelize, Sequelize.DataTypes);
 const RelocationModel = require('../models/Relocation');
 const Relocation = RelocationModel(sequelize, Sequelize.DataTypes);
 
-// exports.createAsset = async (req, res) => {
-//   try {
-//     const { itemName, model, serialNumber, username, price, buyDate, extraDetails } = req.body;
-
-//     if (!itemName || !model || !serialNumber || !username) {
-//       return res.status(400).json({ error: 'Missing required fields' });
-//     }
-
-//     const asset = await Asset.create({
-//       itemName,
-//       model,
-//       serialNumber,
-//       username,
-//       price: price || null,
-//       buyDate: buyDate || null,
-//       extraDetails: extraDetails || null,
-//     });
-
-//     res.status(201).json({ message: '✅ Item saved successfully', asset });
-//   } catch (err) {
-//     console.error('❌ Error creating asset:', err);
-//     res.status(500).json({ error: 'Failed to create asset', details: err.message });
-//   }
-// };
-
-// exports.createAsset = async (req, res) => {
-//   try {
-//     const { itemName, model, serialNumber, username, price,vendor, buyDate,invoice_no,registered_on, extraDetails } = req.body;
-
-//     if (!itemName || !model || !serialNumber || !username) {
-//       return res.status(400).json({ error: 'Missing required fields' });
-//     }
-
-//     // Generate a unique asset ID (e.g., AST-A1B2C3)
-//     const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
-//     const uniqueId = `AST-${randomPart}`;
-
-//     const asset = await Asset.create({
-//       assetId: uniqueId, // Added new unique ID field
-//       itemName,
-//       model,
-//       serialNumber,
-//       username,
-//       price: price || null,
-//       vendor,
-//       invoice_no,
-//       registered_on: registered_on|| null,
-//       buyDate: buyDate || null,
-//       extraDetails: extraDetails || null,
-//     });
-
-//     res.status(201).json({ message: '✅ Item saved successfully', asset });
-//   } catch (err) {
-//     console.error('❌ Error creating asset:', err);
-//     res.status(500).json({ error: 'Failed to create asset', details: err.message });
-//   }
-// };
-
 exports.createAsset = async (req, res) => {
   try {
     const { itemName, model, serialNumber, username, price, vendor, buyDate, invoice_no, registered_on, extraDetails } = req.body;
@@ -251,57 +193,6 @@ exports.getDashboardStats = async (req, res) => {
   } catch (error) {
     console.error("Dashboard stats error:", error);
     res.status(500).json({ error: "Failed to load dashboard data" });
-  }
-};
-
-
-// Transfer asset: record movement and update current location
-exports.transferAsset = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const { from, to, note } = req.body;
-    const asset = await Asset.findByPk(id);
-    if (!asset) return res.status(404).json({ error: 'Asset not found' });
-
-    const entry = {
-      from: from ?? asset.location ?? null,
-      to: to ?? null,
-      note: note ?? null,
-      timestamp: new Date()
-    };
-
-    const history = Array.isArray(asset.history) ? asset.history : [];
-    history.push(entry);
-    asset.history = history;
-    asset.location = entry.to;
-    await asset.save();
-
-    return res.json(asset);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Failed to transfer asset' });
-  }
-};
-
-exports.getDashboardStats = async (req, res) => {
-  try {
-    const totalAssets = await Asset.count();
-    res.json({ totalAssets });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch dashboard stats" });
-  }
-};
-// Get total count of all assets (for dashboard)
-exports.getAssetCount = async (req, res) => {
-  try {
-    const count = await Asset.count(); // Sequelize method to count rows
-    return res.status(200).json({ totalAssets: count });
-  } catch (err) {
-    console.error("❌ Error fetching asset count:", err);
-    return res.status(500).json({
-      error: "Failed to fetch asset count",
-      details: err.message,
-    });
   }
 };
 exports.getAssetsByCategory = async (req, res) => {

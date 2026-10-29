@@ -4,6 +4,13 @@ const controller = require('../controllers/assetController');
 const multer = require('multer');
 const path = require('path');
 
+const fs = require('fs');
+
+// Ensure uploads folder exists to prevent write failures
+if (!fs.existsSync('uploads')) {
+  fs.mkdirSync('uploads');
+}
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/');

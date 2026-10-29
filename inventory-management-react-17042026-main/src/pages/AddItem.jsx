@@ -11,6 +11,7 @@ const today = new Date().toISOString().split('T')[0];
 
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [showNewCategoryForm, setShowNewCategoryForm] = useState(false);
 const [newCategoryName, setNewCategoryName] = useState('');
@@ -93,6 +94,9 @@ const [categories, setCategories] = useState([
       return;
     }
 
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     const formData = new FormData();
 
     formData.append("itemName", form.name);
@@ -120,12 +124,13 @@ const [categories, setCategories] = useState([
 
       const data = await res.json();
       console.log("Saved:", data);
-
+      setIsSubmitting(false);
       navigate('/dashboard');
 
     } catch (err) {
       console.error("Error:", err);
       alert("Error saving item");
+      setIsSubmitting(false);
     }
   };
 
@@ -291,8 +296,10 @@ const [categories, setCategories] = useState([
                   </div>
 
                   <div className="d-flex gap-3 mt-4">
-                    <button type="button" className="btn btn-secondary w-50" onClick={() => setStep(1)}>Back</button>
-                    <button className="btn btn-primary w-50">Save Item</button>
+                    <button type="button" className="btn btn-secondary w-50" onClick={() => setStep(1)} disabled={isSubmitting}>Back</button>
+                    <button className="btn btn-primary w-50" disabled={isSubmitting}>
+                      {isSubmitting ? 'Saving...' : 'Save Item'}
+                    </button>
                   </div>
 
                 </form>

@@ -25,33 +25,48 @@ export default function Profile() {
 
   return (
     <div className="container py-5">
-      
-<PageHeader
-  title="User Profile"
-  subtitle="Manage your account details"
-  icon="bi-person-circle"
-/>
-
-      
+      <PageHeader
+        title="User Profile"
+        subtitle="Manage your account details and hospital location"
+        icon="bi-person-circle"
+      />
 
       <div className="row justify-content-center">
         <div className="col-lg-8">
-          <div className="card shadow">
-            <div className="card-body p-5">
-              {/* <h4 className="mb-4">About PBMA's</h4>
-              <p>
-                Founded on 2nd October, 1952 by Late Mr. Tukaram Sahadeo Bamankar and fellow blind persons, PBMA started with a small room providing welfare services for the blind community. 
-                With support from dedicated individuals, PBMA has grown into one of India's most recognized organizations for the visually impaired.
-              </p> */}
-
-              <div className="mt-5 p-4 bg-light rounded-3">
-                <h5>Current Location</h5>
-                <p className="fs-5 fw-semibold text-primary mt-2">{hospital}</p>
+          <div className="card shadow border-0">
+            <div className="card-body p-4 p-md-5">
+              <div className="d-flex align-items-center gap-4 mb-4 pb-4 border-bottom">
+                <div 
+                  className="bg-primary text-white d-flex align-items-center justify-content-center rounded-circle fs-1" 
+                  style={{ width: '80px', height: '80px' }}
+                >
+                  <i className="bi bi-person-fill"></i>
+                </div>
+                <div>
+                  <h3 className="mb-1">Administrator</h3>
+                  <p className="text-muted mb-0">{localStorage.getItem('username') || 'a@123'}</p>
+                </div>
               </div>
 
-              <div className="text-center mt-5">
+              <div className="row g-4 mb-5">
+                <div className="col-md-6">
+                  <div className="p-3 bg-light rounded-3 h-100">
+                    <h6 className="text-muted mb-2">Hospital Branch</h6>
+                    <p className="fs-5 fw-semibold text-primary mb-0">{hospital}</p>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="p-3 bg-light rounded-3 h-100">
+                    <h6 className="text-muted mb-2">System Access</h6>
+                    <p className="fs-5 fw-semibold text-success mb-0">Full Access (Read/Write)</p>
+                  </div>
+                </div>
+              </div>
+
+
+              <div className="text-center border-top pt-4">
                 <button className="btn btn-danger px-5 py-3" onClick={handleLogout}>
-                  Logout Now
+                  <i className="bi bi-box-arrow-right me-2"></i> Logout Now
                 </button>
               </div>
             </div>
